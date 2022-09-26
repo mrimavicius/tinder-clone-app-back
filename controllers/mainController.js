@@ -1,5 +1,5 @@
-const DatingUser = require("../models/datingUsers")
-const bcrypt = require("bcrypt")
+const DatingUser = require("../models/datingUsers");
+const bcrypt = require("bcrypt");
 
 module.exports = {
   create_user: async (req, res) => {
@@ -29,8 +29,7 @@ module.exports = {
     const user = await DatingUser.findOne({ email });
 
     if (user) {
-
-      req.session.user = user
+      req.session.user = user;
 
       const compare = await bcrypt.compare(password, user.password);
 
@@ -44,7 +43,7 @@ module.exports = {
           photos: user.photos,
           myLikes: user.myLikes,
           gotLikes: user.gotLikes,
-          filter: user.filter
+          filter: user.filter,
         };
         return res.send({
           error: false,
@@ -59,49 +58,57 @@ module.exports = {
     return res.send({ error: true, message: "user not found" });
   },
   add_photo: async (req, res) => {
-    const { email, photos } = req.body
+    const { email, photos } = req.body;
 
-    const user = await DatingUser.findOneAndUpdate({ email }, { $set: {photos}}, { new: true})
+    const user = await DatingUser.findOneAndUpdate(
+      { email },
+      { $set: { photos } },
+      { new: true }
+    );
 
-    return res.send({ error: false, message: "user photos updated", data: user });
+    return res.send({
+      error: false,
+      message: "user photos updated",
+      data: user,
+    });
   },
   get_user: async (req, res) => {
-    const { email } = req.body
+    const { email } = req.body;
 
     const user = await DatingUser.findOne({ email });
 
     let users = await DatingUser.find();
-    users = users.filter(x => x.email !== email)
-    
+    users = users.filter((x) => x.email !== email);
+
     if (user.filter.city !== "All") {
-      if(users){
-        users = users.filter(x => x.city === user.filter.city)
+      if (users) {
+        users = users.filter((x) => x.city === user.filter.city);
       }
-      if(users){
-        users = users.filter(x => x.gender === user.filter.gender)
-      }
-
-      if(users){
-        users = users.filter(
-          (x) =>
-            x.dob.slice(0, 4) < new Date().getFullYear() - user.filter.age_min &&
-            x.dob.slice(0, 4) > new Date().getFullYear() - user.filter.age_max
-        );
-      }
-      console.log(users)
-    }
-
-    if (user.filter.city === "All") {
-      if(users){
+      if (users) {
         users = users.filter((x) => x.gender === user.filter.gender);
       }
-      if(users){
+
+      if (users) {
         users = users.filter(
           (x) =>
             x.dob.slice(0, 4) <
               new Date().getFullYear() - user.filter.age_min &&
-            x.dob.slice(0, 4) >
-              new Date().getFullYear() - user.filter.age_max
+            x.dob.slice(0, 4) > new Date().getFullYear() - user.filter.age_max
+        );
+      }
+      console.log(users);
+    }
+
+    if (user.filter.city === "All") {
+      if (users) {
+        users = users.filter((x) => x.gender === user.filter.gender);
+      }
+      if (users) {
+        users = users.filter(
+          (x) =>
+            x.dob.slice(0, 4) <
+              new Date().getFullYear() - user.filter.age_min &&
+            x.dob.slice(0, 4) > new Date().getFullYear() - user.filter.age_max
         );
       }
     }
@@ -113,8 +120,8 @@ module.exports = {
         data: null,
       });
     } else {
-      const random = Math.floor(Math.random() * users.length)
-      const randomUser = users[random]
+      const random = Math.floor(Math.random() * users.length);
+      const randomUser = users[random];
 
       const userToSend = {
         email: randomUser.email,
@@ -124,17 +131,16 @@ module.exports = {
         gender: randomUser.gender,
         photos: randomUser.photos,
       };
-  
+
       return res.send({
         error: false,
         message: "user to swipe",
         data: userToSend,
       });
     }
-
   },
   add_like: async (req, res) => {
-    const { email, myLikes, otherEmail } = req.body
+    const { email, myLikes, otherEmail } = req.body;
 
     const user = await DatingUser.findOneAndUpdate(
       { email },
@@ -151,8 +157,8 @@ module.exports = {
       photos: user.photos,
     };
 
-    const otherUser = await DatingUser.findOne({ email: otherEmail})
-    const otherUserLikes = [...otherUser.gotLikes, userToLike]
+    const otherUser = await DatingUser.findOne({ email: otherEmail });
+    const otherUserLikes = [...otherUser.gotLikes, userToLike];
 
     const updateOtherUser = await DatingUser.findOneAndUpdate(
       { email: otherEmail },
@@ -161,41 +167,41 @@ module.exports = {
     );
 
     return res.send({
-        error: false,
-        message: "user likes updated",
-        data: user,
+      error: false,
+      message: "user likes updated",
+      data: user,
     });
   },
   autologin: async (req, res) => {
     if (req.session.user) {
-      const { email } = req.session.user
-      const user = await DatingUser.findOne({ email })
+      const { email } = req.session.user;
+      const user = await DatingUser.findOne({ email });
 
       return res.send({
         error: false,
         message: "logging you in",
-        data: user
-      })
+        data: user,
+      });
     }
 
     res.send({
       error: true,
       message: "no user in session",
-      data: null
-    })
+      data: null,
+    });
   },
   logout: (req, res) => {
-    delete req.session.user
+    delete req.session.user;
     res.send({
       error: false,
       message: "user session ended",
-      data: null
-    })
+      data: null,
+    });
   },
   filter: async (req, res) => {
     const { email, filter } = req.body;
 
-    console.log(filter)
+    console.log(filter);
 
     const user = await DatingUser.findOneAndUpdate(
       { email },
@@ -208,5 +214,5 @@ module.exports = {
       message: "user preferences updated",
       data: user,
     });
-  }
+  },
 };

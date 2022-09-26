@@ -1,5 +1,5 @@
 const validator = require("email-validator");
-const DatingUser = require("../models/datingUsers")
+const DatingUser = require("../models/datingUsers");
 
 module.exports = {
   validateRegistration: async (req, res, next) => {
@@ -10,10 +10,10 @@ module.exports = {
       return res.send({ error: true, message: "invalid email" });
 
     if (await DatingUser.findOne({ email }))
-        return res.send({
-            error: true,
-            message: "this email already exists",
-        });
+      return res.send({
+        error: true,
+        message: "this email already exists",
+      });
 
     // password validation
     if (password !== password2)
@@ -33,17 +33,17 @@ module.exports = {
       });
 
     // city validation
-      if (city.length < 3)
-        return res.send({
-            error: true,
-            message: "city name should contain at least 3 characters"
-        })
+    if (city.length < 3)
+      return res.send({
+        error: true,
+        message: "city name should contain at least 3 characters",
+      });
 
     if (city.length > 20)
-        return res.send({
+      return res.send({
         error: true,
         message: "city name should not be longer than 20 characters",
-        });
+      });
 
     // dob validation
     const date = new Date();
@@ -77,6 +77,6 @@ module.exports = {
         message: "you have to be at least 18 years old",
       });
 
-    next()
+    next();
   },
 };
